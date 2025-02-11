@@ -3,37 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Capture Image Only</title>
+    <title>Webcam Capture</title>
 </head>
 <body>
-    <h1>Capture an Image Using the Camera</h1>
-    
-    <!-- Form to capture image using the camera -->
-    <form id="capture-form" action="/submit-image" method="POST" enctype="multipart/form-data">
-        <label for="image-upload">Please capture an image:</label>
-        <!-- Only accepts image captured using the camera -->
-        <input type="file" id="image-upload" name="image" accept="image/*" capture="camera" required>
-        
-        <button type="submit">Submit</button>
-    </form>
 
+    <h2>Capture Image from Webcam</h2>
+    
+    <!-- Video Element to display the webcam feed -->
+    <video id="video" width="640" height="480" autoplay></video>
+    
+    <!-- Button to capture the image -->
+    <button id="capture">Capture</button>
+    
+    <!-- Canvas to display the captured image -->
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+    
     <script>
-        // Optional: Display a preview of the captured image before submitting it
-        const inputElement = document.getElementById('image-upload');
-        inputElement.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const imgElement = document.createElement('img');
-                    imgElement.src = e.target.result;
-                    imgElement.alt = 'Captured Image';
-                    imgElement.width = 200;
-                    document.body.appendChild(imgElement);
-                };
-                reader.readAsDataURL(file);
-            }
+        // Access the camera
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+                // Set the video source to the webcam stream
+                document.getElementById('video').srcObject = stream;
+            })
+            .catch(function(error) {
+                console.error("Error accessing the camera:", error);
+            });
+
+        // Capture the image when the capture button is clicked
+        document.getElementById('capture').addEventListener('click', function() {
+            // Get the canvas and video elements
+            const canvas = document.getElementById('canvas');
+            const video = document.getElementById('video');
+            
+            // Draw the current video frame onto the canvas
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Optionally, you can save or display the captured image
+            const imageData = canvas.toDataURL('image/png');
+            console.log(imageData); // Base64-encoded image
+            
+            // Show the captured image
+            const img = new Image();
+            img.src = imageData;
+            document.body.appendChild(img); // Display the image below the video
         });
     </script>
+
 </body>
 </html>
