@@ -1,54 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webcam Capture</title>
+    <title>Geo Cord finder</title>
 </head>
 <body>
-
-    <h2>Capture Image from Webcam</h2>
-    
-    <!-- Video Element to display the webcam feed -->
-    <video id="video" width="640" height="480" autoplay></video>
-    
-    <!-- Button to capture the image -->
-    <button id="capture">Capture</button>
-    
-    <!-- Canvas to display the captured image -->
-    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
-    
+    <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <p id='latitudeAndLongitude'></p>
+    <p id='address'></p> 
     <script>
-        // Access the camera
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(function(stream) {
-                // Set the video source to the webcam stream
-                document.getElementById('video').srcObject = stream;
-            })
-            .catch(function(error) {
-                console.error("Error accessing the camera:", error);
-            });
+        var latitudeAndLongitude=document.getElementById("latitudeAndLongitude"),
+        clocation={
+            latitude:'',
+            longitude:''
+        };
 
-        // Capture the image when the capture button is clicked
-        document.getElementById('capture').addEventListener('click', function() {
-            // Get the canvas and video elements
-            const canvas = document.getElementById('canvas');
-            const video = document.getElementById('video');
-            
-            // Draw the current video frame onto the canvas
-            const context = canvas.getContext('2d');
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            // Optionally, you can save or display the captured image
-            const imageData = canvas.toDataURL('image/png');
-            console.log(imageData); // Base64-encoded image
-            
-            // Show the captured image
-            const img = new Image();
-            img.src = imageData;
-            document.body.appendChild(img); // Display the image below the video
-        });
-    </script>
+        if (navigator.geolocation){
+            navigator.geolocation.getCurrentPosition(showPosition);
+        }
+        else{
+        latitudeAndLongitude.innerHTML="Geolocation is not supported by this browser.";
+        }
 
+        function showPosition(position){ 
+            clocation.latitude=position.coords.latitude;
+            clocation.longitude=position.coords.longitude;
+            latitudeAndLongitude.innerHTML="Latitude: " + position.coords.latitude + 
+            "<br>Longitude: " + position.coords.longitude +"<br/> <a target='_blank' href='https://www.google.com/maps/search/?api=1&query="+position.coords.latitude+","+position.coords.longitude+"'>map</a>"; 
+            var geocoder = new google.maps.Geocoder();
+            var latLng = new google.maps.LatLng(clocation.latitude, clocation.longitude);
+
+        if (geocoder) {
+            geocoder.geocode({ 'latLng': latLng}, function (results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+                console.log(results[0].formatted_address); 
+                $('#address').html('Address:'+results[0].formatted_address);
+            }
+            else {
+                $('#address').html('Geocoding failed: '+status);
+                console.log("Geocoding failed: " + status);
+            }
+            }); //geocoder.geocode()
+        }      
+        } //showPosition
+    </script>    
 </body>
 </html>
