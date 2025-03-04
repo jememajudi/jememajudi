@@ -96,7 +96,7 @@
 
         // Start video stream
         navigator.mediaDevices.getUserMedia({ video:{
-            facingMode: exact: "environment"
+            facingMode: "environment"
         } })
             .then(stream => {
                 video.srcObject = stream;
