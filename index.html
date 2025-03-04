@@ -5,73 +5,128 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GPS Map Camera</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
         #video {
             display: block;
             margin: 0 auto;
+            border: 5px solid #ccc;
+            border-radius: 8px;
         }
-        #photo {
-            display: block;
-            margin: 20px auto;
-        }
+
         #captureButton {
             display: block;
             margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
-        div.transbox {
-            margin: 30px;
-            background-color: #000000;
-            color:aliceblue;
-            opacity: 0.6;
-            width: 30%;
-            height: auto;
+
+        #captureButton:hover {
+            background-color: #45a049;
+        }
+
+        .photo-gallery {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .photo-gallery img {
+            margin: 10px;
+            border: 4px solid #ddd;
+            border-radius: 8px;
+            width: 640;
+            height: 520;
+            object-fit: cover;
+        }
+
+        .transbox {
+            margin: 30px auto;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            opacity: 0.8;
+            width: 80%;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
     <h1>GPS Map Camera</h1>
+
+    <!-- Video Feed -->
     <video id="video" width="640" height="480" autoplay></video>
+
+    <!-- Capture Button -->
     <button id="captureButton">Capture Photo</button>
-    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
-    <!-- <div  class="transbox"  name="address" id="address"></div> -->
-    <img id="photo" alt="Your photo will appear here">
+
+    <!-- Photo Gallery -->
+    <div class="photo-gallery" id="photoGallery"></div>
+
+    <!-- Canvas for capturing -->
+    <canvas id="canvas" width="640" height="480" class="hidden"></canvas>
 
     <script>
-        const captureButton = document.getElementById('captureButton');
+        // Initialize video feed and camera
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
-        const photo = document.getElementById('photo');
+        const captureButton = document.getElementById('captureButton');
+        const photoGallery = document.getElementById('photoGallery');
 
-        // Get user media (camera)
-        navigator.mediaDevices.getUserMedia({video: {
-        facingMode: { exact: "environment" }
-    } })
+        // Start video stream
+        navigator.mediaDevices.getUserMedia({ video:{
+            facingMode: { exact: "environment" }
+        } })
             .then(stream => {
                 video.srcObject = stream;
             })
             .catch(err => {
-                console.error("Error accessing camera: ", err);
+                alert('Error accessing camera: ' + err.message);
             });
 
-        // Capture photo and get geolocation
+        // Capture photo
         captureButton.addEventListener('click', () => {
-            // Draw the video frame to the canvas
-            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            // Draw video frame to canvas
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            // Get the geolocation
-            navigator.geolocation.getCurrentPosition(async(position) => {
+            // Capture geolocation details
+            navigator.geolocation.getCurrentPosition(async (position) => {
                 const latitude = position.coords.latitude;
                 const longitude = position.coords.longitude;
-                var rtnval= { lat:latitude, long:longitude , address:'' };
                 const timestamp = new Date(position.timestamp).toLocaleString();
+                var rtnval= { lat:latitude, long:longitude , address:'' };
                 var locationaddress = '';
                 await getAddress(rtnval);                
-                locationaddress=rtnval.address;
+                locationaddress=rtnval.array;
                 // Convert canvas to image data URL
                 const dataUrl = canvas.toDataURL('image/png');
 
                 // Create a new image element
                 const img = new Image();
                 img.src = dataUrl;
+                photoGallery.appendChild(img);
 
                 img.onload = () => {
                     // Create a new canvas to add geolocation data
@@ -79,22 +134,21 @@
                     geoCanvas.width = img.width;
                     geoCanvas.height = img.height;
                     const ctx = geoCanvas.getContext('2d');
-
-                    // Draw the image onto the new canvas
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.006)';
                     ctx.drawImage(img, 0, 0);
+                    ctx.fillRect(0, 380, geoCanvas.width, 150);
+                    ctx.font = '16px "calibri"';
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
 
-                    // Add geolocation text
-                    ctx.font = '16px Arial';
-                    ctx.fillStyle = 'red';
-                    ctx.fillText(`Address: ${rtnval.array}`, 10, 30);
-                    ctx.fillText(`Lat: ${latitude.toFixed(6)}`, 10, 60);
-                    ctx.fillText(`Lon: ${longitude.toFixed(6)}`, 10, 90);
-                    ctx.fillText(`Time: ${timestamp}`, 10, 120);
-                    // document.getElementById('address').textContent = rtnval.array;
+                    ctx.fillText(`Address: ${locationaddress}`, 10, 400);
+                    ctx.fillText(`Lat: ${latitude.toFixed(6)}`, 10, 420);
+                    ctx.fillText(`Lon: ${longitude.toFixed(6)}`, 10, 440);
+                    ctx.fillText(`Time: ${timestamp}`, 10, 460);
 
-                    // Convert the new canvas to data URL and display the photo
                     const geoDataUrl = geoCanvas.toDataURL('image/png');
-                    photo.src = geoDataUrl;
+                    ctx.globalAlpha = 1.0;
+                    // Update the displayed image with geolocation details
+                    img.src = geoDataUrl;
                 };
             }, err => {
                 console.error("Error getting geolocation: ", err);
@@ -102,9 +156,9 @@
         });
 
         async function getAddress(rtnobj) {
-            const latitude = rtnobj.lat; // Replace with your latitude
-            const longitude = rtnobj.long; // Replace with your longitude
-            const apiKey = '90c0a3ce0de947e2a273605bda7e6987'; // Replace with your OpenCage API key
+            const latitude = rtnobj.lat; 
+            const longitude = rtnobj.long; 
+            const apiKey = '90c0a3ce0de947e2a273605bda7e6987'; 
 
             const url = `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${apiKey}`;
 
@@ -116,15 +170,15 @@
                     rtnobj.address = data.results[0].formatted;
                     const components = data.results[0].components;
                     const resultArray = [
-        components.village || '',  // If village is null, use 'N/A'
-        components.road || '',  // If road is null, use 'N/A'
-        components.road_reference || '',  // If road_reference is null, use 'N/A'
-        components.county || '',  // If county is null, use 'N/A'
-        components.state_district || '',  // If state_district is null, use 'N/A'
-        components.state || '',  // If state is null, use 'N/A'
-        components.country || '',  // If country is null, use 'N/A'
-        components.postcode || ''  // If postcode is null, use 'N/A'
-    ];
+                        components.village || '',  
+                        components.road || '',  
+                        components.road_reference || '',
+                        components.county || '', 
+                        components.state_district || '',
+                        components.state || '',
+                        components.country || '', 
+                        components.postcode || '' 
+                    ];
                     rtnobj.array = resultArray.filter(item => item !== '').join(', ');
                     console.log(resultArray)
                     //document.getElementById('address').textContent = address;
