@@ -1,8 +1,143 @@
-<button onclick="openCamera()">Open Camera</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPS Map Camera</title>
+    <style>
+        #video {
+            display: block;
+            margin: 0 auto;
+        }
+        #photo {
+            display: block;
+            margin: 20px auto;
+        }
+        #captureButton {
+            display: block;
+            margin: 20px auto;
+        }
+        div.transbox {
+            margin: 30px;
+            background-color: #000000;
+            color:aliceblue;
+            opacity: 0.6;
+            width: 30%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>GPS Map Camera</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+    <button id="captureButton">Capture Photo</button>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+    <!-- <div  class="transbox"  name="address" id="address"></div> -->
+    <img id="photo" alt="Your photo will appear here">
 
-<script>
-  function openCamera() {
-    // The URL scheme might be something like this (you would need to check the GPS Map Camera documentation)
-    window.location.href = "gpsmapcamera://"; // Example of a custom scheme URL
-  }
-</script>
+    <script>
+        const captureButton = document.getElementById('captureButton');
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const photo = document.getElementById('photo');
+
+        // Get user media (camera)
+        navigator.mediaDevices.getUserMedia({video: {
+        facingMode: { exact: "environment" }
+    } })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(err => {
+                console.error("Error accessing camera: ", err);
+            });
+
+        // Capture photo and get geolocation
+        captureButton.addEventListener('click', () => {
+            // Draw the video frame to the canvas
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Get the geolocation
+            navigator.geolocation.getCurrentPosition(async(position) => {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                var rtnval= { lat:latitude, long:longitude , address:'' };
+                const timestamp = new Date(position.timestamp).toLocaleString();
+                var locationaddress = '';
+                await getAddress(rtnval);                
+                locationaddress=rtnval.address;
+                // Convert canvas to image data URL
+                const dataUrl = canvas.toDataURL('image/png');
+
+                // Create a new image element
+                const img = new Image();
+                img.src = dataUrl;
+
+                img.onload = () => {
+                    // Create a new canvas to add geolocation data
+                    const geoCanvas = document.createElement('canvas');
+                    geoCanvas.width = img.width;
+                    geoCanvas.height = img.height;
+                    const ctx = geoCanvas.getContext('2d');
+
+                    // Draw the image onto the new canvas
+                    ctx.drawImage(img, 0, 0);
+
+                    // Add geolocation text
+                    ctx.font = '16px Arial';
+                    ctx.fillStyle = 'red';
+                    ctx.fillText(`Address: ${rtnval.array}`, 10, 30);
+                    ctx.fillText(`Lat: ${latitude.toFixed(6)}`, 10, 60);
+                    ctx.fillText(`Lon: ${longitude.toFixed(6)}`, 10, 90);
+                    ctx.fillText(`Time: ${timestamp}`, 10, 120);
+                    // document.getElementById('address').textContent = rtnval.array;
+
+                    // Convert the new canvas to data URL and display the photo
+                    const geoDataUrl = geoCanvas.toDataURL('image/png');
+                    photo.src = geoDataUrl;
+                };
+            }, err => {
+                console.error("Error getting geolocation: ", err);
+            });
+        });
+
+        async function getAddress(rtnobj) {
+            const latitude = rtnobj.lat; // Replace with your latitude
+            const longitude = rtnobj.long; // Replace with your longitude
+            const apiKey = '90c0a3ce0de947e2a273605bda7e6987'; // Replace with your OpenCage API key
+
+            const url = `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${apiKey}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data.results && data.results.length > 0) {
+                    console.log(data)
+                    rtnobj.address = data.results[0].formatted;
+                    const components = data.results[0].components;
+                    const resultArray = [
+        components.village || '',  // If village is null, use 'N/A'
+        components.road || '',  // If road is null, use 'N/A'
+        components.road_reference || '',  // If road_reference is null, use 'N/A'
+        components.county || '',  // If county is null, use 'N/A'
+        components.state_district || '',  // If state_district is null, use 'N/A'
+        components.state || '',  // If state is null, use 'N/A'
+        components.country || '',  // If country is null, use 'N/A'
+        components.postcode || ''  // If postcode is null, use 'N/A'
+    ];
+                    rtnobj.array = resultArray.filter(item => item !== '').join(', ');
+                    console.log(resultArray)
+                    //document.getElementById('address').textContent = address;
+                    //return address;
+                } else {
+                    //document.getElementById('address').textContent = 'No address found';
+                    rtnobj.address =  'No address found';
+                }
+            } catch (error) {
+                console.error('Error fetching address:', error);
+                document.getElementById('address').textContent = 'Error fetching address';
+            }
+        }
+    </script>
+</body>
+</html>
