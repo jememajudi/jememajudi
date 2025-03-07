@@ -1,94 +1,85 @@
-
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Online Address Verification </title>
-        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <!-- <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>  -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="CSS/assets/typeahead.js/typeahead.bundle.min.js"></script>
-    <script src="CSS/assets/js/typeahead.js"></script>
-    <script src="CSS/assets/js/file-upload.js"></script>
-    <script src="CSS/assets/js/template.js"></script>
-    <script src="FormScript.js"></script>
-    
-    <link rel="stylesheet" href="CSS/css/formstyle.css">
-    <link rel="icon" type="image/x-icon" href="image/form-lg.png">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="CSS/assets/typicons/typicons.css">
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPS Map Camera</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            text-align: center;
+            padding: 20px;
+        }
 
-    <body>
-        <div class="container-scroller">
-          <div class="container-fluid page-body-wrapper">      
-            <div class="main-panel">        
-              <div class="content-wrapper">
-                <div class="row">
-                  <div class="col-12 grid-margin stretch-card">
-                    <div class="card">
-                      <div class="card-body">
-                      <?php if (($VerificationStatus !='Completed') && ($formattedExpDt > $formattedTodayDt)){ ?>
-                        <div class="head d-flex flex-column flex-md-row align-items-center" style="background-color:rgb(0 100 148)">
-                            <div class="px-3 col-lg-3"><img src="image/form-lg.png" alt="logo" style="width: 100%;height:auto;"></div>  
-                            <div class="col-12 col-md-9 text-center"><h2>Online Address Verification Form</h2></div>
-                        </div>
-                            <form id="onlineAddress_form" class="form-group" action="" method="POST" enctype="multipart/form-data"> 
-                                <div class='form-group form-container rounded pt-3 mt-3'>
-                                    <h5>Please follow these guidelines for the photo:</h5>
-                                    <ul>
-                                        <li>You should only use a mobile phone to capture the photo.</li>
-                                        <li>The image should clearly show your house's exterior.</li>
-                                        <li>Enable your phone’s location services before taking the photo, so that the photo can be geotagged with location information.</li>
-                                        <li>Ensure that the entire house is visible, and the photo should be taken from a distance that allows a clear view of the front of the property.</li>
-                                        <li>Avoid any obstructions (e.g., trees, cars, or other objects) that may block the view of your house.</li>
-                                        <li>The photo should be taken in good lighting (preferably during the day) to ensure clarity.</li>
-                                    </ul>
-                                    <p>Feel free to connect with the HR Coordinator of your employer for any queries related to the Address Verification Form. Write to us for any technical assistance or reporting a bug @ bgv@nadalbusiness.com</p>
-                                </div>
-                                <div class="form-container rounded text-center">
-                                    <input type="hidden" id="Latitude" name="Latitude">
-                                    <input type="hidden" id="Longitude" name="Longitude">
-                                    <input type="file" class="file-upload-default"  name="Captured_Image[]" id="Captured_Image">
-                                    <button type="button" class="d-flex btn btn-primary" id="captureButton"><i class="bi bi-camera-fill fs-5"></i></button>
-                                    <!-- <div class="row bg-light mt-3">
-                                        <div class="col-md-2"></div>
-                                        <div class="col-md-8 d-flex justify-content-center align-items-center">
-                                            <img id="capturedImage" class="img-fluid rounded img-thumbnail h-auto m-3" src="" style="display:none;" alt="Captured Image">                                                                        
-                                        </div>
-                                        <div class="col-md-2"></div>
-                                    </div> -->
-                                    <video  class="d-block my-0 mx-auto border border-5 border-light rounded" id="video" width="100%" height="auto" autoplay></video>
-                                    <div class="d-block justify-content-center flex-wrap mt-6" style="width: 100%;height: auto;" id="photoGallery"></div>
-                                    <canvas id="canvas" width="640px" height="480px" class="d-none img-fluid m-2"></canvas>
-                                </div><br>                                    
-                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                    <button class='btn btn-primary' type='reset'>Cancel</button>
-                                    <button class='btn btn-primary' type='submit'>Submit</button>
-                                </div>
-                            </form>
-                        <?php } elseif($VerificationStatus == 'Completed') { ?>
-                            <div class="alert alert-success mt-3" role="alert">
-                                <h4 class="alert-heading"><strong>Success!</strong></h4>
-                                <p>Your address has been successfully verified. Thank you for completing the process.</p>
-                            </div>
-                        <?php } elseif($formattedExpDt < $formattedTodayDt) {?>
-                            <div class="alert alert-danger mt-3" role="alert">
-                                <h4 class="alert-heading"><strong>Link expired!</strong></h4>
-                            </div>
-                        <?php } ?>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-            </div>
-          </div>
-        </div>
-        <script>
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
 
+        #video {
+            display: block;
+            margin: 0 auto;
+            border: 5px solid #ccc;
+            border-radius: 8px;
+        }
+
+        #captureButton {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #captureButton:hover {
+            background-color: #45a049;
+        }
+
+        .photo-gallery {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .photo-gallery img {
+            margin: 10px;
+            border: 4px solid #ddd;
+            border-radius: 8px;
+            width: 640;
+            height: 520;
+            object-fit: cover;
+        }
+
+        .transbox {
+            margin: 30px auto;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            opacity: 0.8;
+            width: 80%;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>GPS Map Camera</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+    <button id="captureButton">Capture Photo</button>
+    <div class="photo-gallery" id="photoGallery"></div>
+    <canvas id="canvas" width="640" height="480" class="hidden"></canvas>
+
+    <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const captureButton = document.getElementById('captureButton');
@@ -97,7 +88,7 @@
         // Start video stream
         navigator.mediaDevices.getUserMedia({ video:{
             facingMode: "environment"
-            } })
+        } })
             .then(stream => {
                 video.srcObject = stream;
             })
@@ -115,8 +106,6 @@
             navigator.geolocation.getCurrentPosition(async (position) => {
                 const latitude = position.coords.latitude;
                 const longitude = position.coords.longitude;
-                document.getElementById('Latitude').value = latitude;
-                document.getElementById('Longitude').value = longitude;
                 const timestamp = new Date(position.timestamp).toLocaleString();
                 var rtnval= { lat:latitude, long:longitude , address:'' };
                 var locationaddress = '';
@@ -127,35 +116,20 @@
 
                 // Create a new image element
                 const img = new Image();
-                img.className = 'img-fluid m-2 border border-light rounded';
-                img.style = 'width: 640px; height: 480px; object-fit: cover; border-width: 4px;';
                 img.src = dataUrl;
-                
-                const deleteButton = document.createElement('button');
-                deleteButton.setAttribute('class','btn p-0');
-                deleteButton.innerHTML = '<i class="bi bi-x-lg fs-4 text-danger"></i>';
-
-                deleteButton.addEventListener('click', () => {
-                    photoGallery.removeChild(img);
-                    photoGallery.removeChild(deleteButton);
-                });
-
                 photoGallery.appendChild(img);
-                photoGallery.appendChild(deleteButton);
-                let isGeoDataAdded = false;
+
                 img.onload = () => {
-                    if (isGeoDataAdded) return;
-                    isGeoDataAdded = true; 
-                    
+                    // Create a new canvas to add geolocation data
                     const geoCanvas = document.createElement('canvas');
                     geoCanvas.width = img.width;
                     geoCanvas.height = img.height;
                     const ctx = geoCanvas.getContext('2d');
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.006)';
                     ctx.drawImage(img, 0, 0);
-                    ctx.fillRect(0, 380, geoCanvas.width, 100);
+                    ctx.fillRect(0, 380, geoCanvas.width, 150);
                     ctx.font = '15px "calibri"';
-                    ctx.fillStyle = 'rgba(255, 255, 255)';
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
 
                     ctx.fillText(`Address: ${locationaddress}`, 10, 400);
                     ctx.fillText(`Lat: ${latitude.toFixed(6)}`, 10, 420);
@@ -164,22 +138,8 @@
 
                     const geoDataUrl = geoCanvas.toDataURL('image/png');
 
-                    img.src = geoDataUrl;     
-                    fetch(geoDataUrl)
-                    .then(res => res.blob())
-                    .then(blob => {
-                        const file = new File([blob], 'modified_image.png', { type: blob.type });
-                        const input = document.getElementById('Captured_Image');
-                        const dataTransfer = new DataTransfer();
-                        for (const existingFile of input.files) {
-                            dataTransfer.items.add(existingFile);
-                        }
-                        dataTransfer.items.add(file);
-                        input.files = dataTransfer.files;
-                        console.log(dataTransfer)
-                    });               
+                    img.src = geoDataUrl;
                 };
-                
             }, err => {
                 console.error("Error getting geolocation: ", err);
             });
@@ -210,8 +170,11 @@
                         components.postcode || '' 
                     ];
                     rtnobj.array = resultArray.filter(item => item !== '').join(', ');
-
+                    console.log(resultArray)
+                    //document.getElementById('address').textContent = address;
+                    //return address;
                 } else {
+                    //document.getElementById('address').textContent = 'No address found';
                     rtnobj.address =  'No address found';
                 }
             } catch (error) {
@@ -219,131 +182,6 @@
                 document.getElementById('address').textContent = 'Error fetching address';
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // var latitudeAndLongitude=document.getElementById("latitudeAndLongitude"),
-        // clocation={
-        //     latitude:'',
-        //     longitude:''
-        // };
-
-        // if (navigator.geolocation){
-        //     navigator.geolocation.getCurrentPosition(showPosition);
-        // }
-        // else{
-        // latitudeAndLongitude.innerHTML="Geolocation is not supported by this browser.";
-        // }
-
-        // function showPosition(position){ 
-        //     document.getElementById('Latitude').value=position.coords.latitude;
-        //     document.getElementById('Longitude').value=position.coords.longitude;
-        //     clocation.latitude=position.coords.latitude;
-        //     clocation.longitude=position.coords.longitude;
-        //     latitudeAndLongitude.innerHTML="Latitude: " + position.coords.latitude + 
-        //     "  Longitude: " + position.coords.longitude +"&nbsp;&nbsp;<a target='_blank' href='https://www.google.com/maps/search/?api=1&query="+position.coords.latitude+","+position.coords.longitude+"'>Map</a>"; 
-        //     var geocoder = new google.maps.Geocoder();
-        //     var latLng = new google.maps.LatLng(clocation.latitude, clocation.longitude);
-
-        // if (geocoder) {
-        //     geocoder.geocode({ 'latLng': latLng}, function (results, status) {
-        //     if (status == google.maps.GeocoderStatus.OK) {
-        //         console.log(results[0].formatted_address); 
-        //         $('#address').html('Address:'+results[0].formatted_address);
-        //     }
-        //     else {
-        //         $('#address').html('Geocoding failed: '+status);
-        //         console.log("Geocoding failed: " + status);
-        //     }
-        //     }); //geocoder.geocode()
-        // }      
-        // } //showPosition
-
-        // document.getElementById('cameraInput_btn').addEventListener('click', function(event) {
-        //     event.preventDefault();
-        //     document.getElementById('Captured_Image').click();
-        // });
-
-        // const cameraInput = document.getElementById('Captured_Image');
-        // const capturedImage = document.getElementById('capturedImage');
-
-        // cameraInput.addEventListener('change', function(event) {
-        //     const file = event.target.files[0];  
-        //     if (file) {
-        //     const reader = new FileReader();
-
-        //     reader.onload = function(e) {
-        //         capturedImage.src = e.target.result; 
-        //         capturedImage.style.display = "block";
-        //     };
-
-        //     reader.readAsDataURL(file);
-        //     }
-        // });
-
-        // document.getElementById('onlineAddress_form').addEventListener('reset', function(event) {
-        //     document.getElementById('capturedImage').style.display = 'none';
-        // });
-
-        // document.getElementById('onlineAddress_form').addEventListener('submit', e => {
-        //     event.preventDefault();
-        //     let uploaded = 'no';
-        //     var fileInput = document.getElementById('Captured_Image');
-
-        //     if (fileInput.files.length === 0) {
-        //         Swal.fire('Please attach the image before submitting.');
-        //         return;
-        //     } else {
-        //         uploaded = 'yes';
-        //     }
-        //         Swal.fire({
-        //             title: "Are you sure?",
-        //             text: "Once Submitted, you will not be able to open this form again!",
-        //             icon: "warning",
-        //             showCancelButton: true,
-        //             confirmButtonColor: "#03C03C",
-        //             cancelButtonColor: "#d33",
-        //             confirmButtonText: "Yes"
-
-        //         }).then((willSubmit) => {
-        //             if (willSubmit.isConfirmed) {
-        //                 if(uploaded ==='yes'){  
-        //                     document.getElementById("onlineAddress_form").submit(); 
-        //                 }
-        //             } else {
-        //                 return false;
-        //             }
-        //         });
-        //     })
-
-    </script>  
-
+    </script>
 </body>
 </html>
-
