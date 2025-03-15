@@ -95,18 +95,22 @@
         const photoGallery = document.getElementById('photoGallery');
 
         function switchCamera() {
-            if (video) {
-                cameraMode = document.getElementById('camera_mode').value;
-                currentCamera = (cameraMode === '') ? 'environment' : cameraMode;
-                navigator.mediaDevices.getUserMedia({ video: { facingMode: currentCamera} })
-                .then(stream => {
-                    video.srcObject = stream;
-                })
-                .catch(err => {
-                    alert('Error accessing camera: ' + err.message);
-                });
-            }
-        };
+    if (video) {
+        cameraMode = document.getElementById('camera_mode').value || 'environment';
+        console.log('Current Camera Mode:', cameraMode);
+        
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: cameraMode } })
+        .then(stream => {
+            video.srcObject = stream;
+            console.log('Camera switched successfully');
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            alert('Error accessing camera: ' + err.message);
+        });
+    }
+};
+
         switchCamera();
         
         captureButton.addEventListener('click', () => {
