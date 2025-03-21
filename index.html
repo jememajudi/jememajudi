@@ -52,8 +52,9 @@
                                     <p>Feel free to connect with the HR Coordinator of your employer for any queries related to the Address Verification Form. Write to us for any technical assistance or reporting a bug @ bgv@nadalbusiness.com</p>
                                 </div>
                                 <div class="form-container rounded text-center">
-                                    <input type="hidden" id="Latitude" name="Latitude">
-                                    <input type="hidden" id="Longitude" name="Longitude">
+                                    <input type="text" id="Latitude" name="Latitude">
+                                    <input type="text" id="Longitude" name="Longitude">
+                                     <input type="text" id="accuracy" name="accuracy">
                                     <input type="file" class="file-upload-default"  name="Captured_Image[]" id="Captured_Image">
                                     <div class="row my-2 d-flex justify-content-center">
                                         <div class="col-3 col-sm-3 d-sm-flex justify-content-start justify-content-sm-start">
@@ -128,6 +129,7 @@
                 const longitude = position.coords.longitude;
                 document.getElementById('Latitude').value = latitude;
                 document.getElementById('Longitude').value = longitude;
+                 document.getElementById('accuracy').value = position.coords.accuracy;
                 const timestamp = new Date(position.timestamp).toLocaleString();
                 var rtnval= { lat:latitude, long:longitude , address:'' };
                 var locationaddress = '';
