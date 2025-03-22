@@ -67,7 +67,9 @@
                                     <video  class="d-block my-0 mx-auto border border-5 border-light rounded" id="video" width="100%" height="auto" autoplay></video>
                                     <div class="d-block justify-content-center flex-wrap mt-6" style="width: 100%;height: auto;" id="photoGallery"></div>
                                     <canvas id="canvas" width="640px" height="480px" style="max-width: 100%; border-width: 4px; object-fit: cover;" class="d-none img-fluid m-2"></canvas>
-                                </div><br>                                    
+                                </div><br>
+                                <p>enableHighAccuracy result:</p>
+                                <input type='text' id='coordinates'>
                                 <div class="d-flex justify-content-end gap-2">
                                     <button class='btn btn-primary p-2' type='reset'>Cancel</button>
                                     <button class='btn btn-primary p-2' type='submit'>Submit</button>
@@ -281,12 +283,16 @@
                     }
                 });
             })
-            navigator.geolocation.getCurrentPosition(
-    function(p) {console.log(p.coords)},
-    function(p) {console.log('bug')},
-    {enableHighAccuracy: true}
-)
+            
+             navigator.geolocation.getCurrentPosition(
+        function(p) {
+        console.log(p.coords)
+        document.getElementById('coordinates').value=`${p.coords.latitude},${p.coords.longitude}`;
+        },
+        function(p) {console.log('bug')},
+        {enableHighAccuracy: true}
 
+    )
     </script>  
 
 </body>
