@@ -8,16 +8,11 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <!-- <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>  -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="CSS/assets/typeahead.js/typeahead.bundle.min.js"></script>
-    <script src="CSS/assets/js/typeahead.js"></script>
-    <script src="CSS/assets/js/file-upload.js"></script>
-    <script src="CSS/assets/js/template.js"></script>
-    <script src="FormScript.js"></script>
+   
     
-    <link rel="stylesheet" href="CSS/css/formstyle.css">
-    <link rel="icon" type="image/x-icon" href="image/form-lg.png">
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="CSS/assets/typicons/typicons.css">
+
   
 
 
@@ -286,6 +281,11 @@
                     }
                 });
             })
+            navigator.geolocation.getCurrentPosition(
+    function(p) {console.log(p.coords)},
+    function(p) {console.log('bug')},
+    {enableHighAccuracy: true}
+)
 
     </script>  
 
